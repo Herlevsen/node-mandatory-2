@@ -1,0 +1,59 @@
+/**
+ * Dependencies
+ */
+const mongoose = require('mongoose');
+
+const Item = mongoose.model('Item');
+
+exports.index = function(req, res) {
+	const page  = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 100;
+    const skip  = (page - 1) * limit;
+
+	Item.find()
+    .select('-__v')
+    .limit(limit)
+    .skip(skip)
+    .sort({name: 'asc'})
+    .exec(function(err, users) {
+        if(err) {
+
+        }
+
+        res.json({
+            data: users
+        });
+    });
+}
+
+exports.create = function(req, res) {
+
+    var item = new Item({
+        title: req.body.title,
+        description: req.body.description
+    });
+
+    item.save(function (err) {
+        if (err) {
+            return handleError(err);
+        }
+        // saved!
+    });
+
+    res.json({
+    	status: "created",
+        data: item
+    });
+}
+
+exports.find = function(req, res) {
+	Item.findOne(req.params.id).select('-__v').exec(function(err, user) {
+        if(err) {
+
+        }
+
+        res.json({
+            data: user
+        });
+    });
+}
