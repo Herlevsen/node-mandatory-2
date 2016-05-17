@@ -29,9 +29,19 @@ exports.index = function(req, res) {
 
 exports.create = function(req, res) {
 
+    var address = {
+        address: req.body.address.address,
+        cityName: req.body.address.cityName,
+        postalCode: parseInt(req.body.address.postalCode),
+        latitude: parseFloat(req.body.address.latitude),
+        longitude: parseFloat(req.body.address.longitude)
+    };
+
     var user = new User({
-        username: req.body.username,
+        email: req.body.email,
         password: req.body.password,
+        name: req.body.name,
+        address: address
     });
 
     user.save(function (err) {

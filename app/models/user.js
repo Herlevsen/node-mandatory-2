@@ -10,7 +10,7 @@ const Schema   = mongoose.Schema;
  * Schema
  */
 const UserSchema = new Schema({
-    username: {
+    email: {
         type : String,
         trim : true,
         unique: true
@@ -18,6 +18,10 @@ const UserSchema = new Schema({
     password: {
         type : String,
         trim : true
+    },
+    name: {
+        type: String,
+        trim: true
     },
     items: [{
         type : Schema.ObjectId,
@@ -30,6 +34,26 @@ const UserSchema = new Schema({
     createdAt  : {
         type : Date,
         default : Date.now
+    },
+    address: {
+        address: {
+            type: String,
+            trim: true
+        },
+        cityName: {
+            type: String,
+            trim: true
+        },
+        postalCode: {
+            type: Number,
+            trim: true
+        },
+        latitude: {
+            type: Number,
+        },
+        longitude: {
+            type: Number
+        }
     }
 });
 
