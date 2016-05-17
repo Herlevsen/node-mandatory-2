@@ -5,6 +5,8 @@ const fs       = require('fs');
 const express  = require('express');
 const join     = require('path').join;
 const mongoose = require('mongoose');
+const passport = require('passport');
+const config   = require('./config');
 
 /**
  * Bootstrap application
@@ -14,16 +16,15 @@ const port   = process.env.NODE_PORT || 3000,
       app    = express(),
       models = join(__dirname, 'app/models');
 
-// Setup models
+// Load mongoose models
 fs.readdirSync(models)
     .filter(file => ~file.search(/^[^\.].*\.js$/))
     .forEach(file => require(join(models, file)));
-        
-// Configure express
-require('./config/express.js')(app);
 
-// Setup routes
-require('./config/routes')(router);
+// Configure passport, configure express, setup routes
+require('./config/passport.js')(passport);
+require('./config/express.js')(app);
+require('./config/routes')(router, passport);
 
 // Use the router and prefix it
 app.use('/api/v1', router);
@@ -38,5 +39,5 @@ connect()
 
 function connect () {
     var options = { server: { socketOptions: { keepAlive: 1 } } };
-    return mongoose.connect('mongodb://localhost/gratisting', options).connection;
+    return mongoose.connect(config.mongodb, options).connection;
 }

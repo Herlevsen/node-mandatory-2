@@ -33,6 +33,9 @@ exports.create = function(req, res) {
         description: req.body.description
     });
 
+    // For the moment we hardcode an image
+    item.images.push("avatar.png");
+
     item.save(function (err) {
         if (err) {
             return handleError(err);

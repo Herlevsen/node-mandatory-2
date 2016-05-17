@@ -27,10 +27,9 @@ const ItemSchema = new Schema({
         type : Schema.ObjectId,
         ref : 'Category'
     },
-    image: {
-        cdnUri: String,
-        files: []
-    },
+    images: [{
+        type: String
+    }],
     createdAt  : {
         type : Date,
         default : Date.now
