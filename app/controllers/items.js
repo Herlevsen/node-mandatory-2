@@ -30,7 +30,8 @@ exports.create = function(req, res) {
 
     var item = new Item({
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        owner: req.user
     });
 
     // For the moment we hardcode an image
@@ -42,6 +43,8 @@ exports.create = function(req, res) {
         }
         // saved!
     });
+
+
 
     res.json({
     	status: "created",
