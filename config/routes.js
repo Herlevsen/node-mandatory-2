@@ -14,6 +14,7 @@ module.exports = function(router, passport) {
 	
 	// Items
 	router.get('/items', items.index);
+	router.get('/items/:id', items.find);
 	router.post('/items', auth, items.create);
 
 	// Users

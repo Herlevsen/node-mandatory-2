@@ -53,13 +53,13 @@ exports.create = function(req, res) {
 }
 
 exports.find = function(req, res) {
-	Item.findOne(req.params.id).select('-__v').exec(function(err, user) {
+	Item.findOne(req.params.id).select('-__v').exec(function(err, item) {
         if(err) {
 
         }
 
         res.json({
-            data: user
+            data: item
         });
     });
 }
