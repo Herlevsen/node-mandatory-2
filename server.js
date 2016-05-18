@@ -24,10 +24,7 @@ fs.readdirSync(models)
 // Configure passport, configure express, setup routes
 require('./config/passport.js')(passport);
 require('./config/express.js')(app);
-require('./config/routes')(router, passport);
-
-// Use the router and prefix it
-app.use('/api/v1', router);
+require('./config/routes')(app, router, passport);
 
 connect()
 .on('error', console.log)
