@@ -27,7 +27,7 @@ exports.index = function(req, res) {
     });
 }
 
-exports.create = function(req, res) {
+exports.create = function(req, res, next) {
 
     var address = {
         address: req.body.address.address,
@@ -46,7 +46,7 @@ exports.create = function(req, res) {
 
     user.save(function (err) {
         if (err) {
-            return handleError(err);
+            return next(err)
         }
         // saved!
     });
