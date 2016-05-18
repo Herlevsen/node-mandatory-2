@@ -2,8 +2,30 @@
  * Dependencies
  */
 const mongoose = require('mongoose');
+const validate = require('mongoose-validator');
+
 
 const Schema = mongoose.Schema;
+
+/**
+ * Validators
+ */
+
+var titleValidator = [
+    validate({
+        validator: 'isLength',
+        arguments: [2, 20],
+        message: 'Du skal indtaste en titel, mellem {ARGS[0]} og {ARGS[1]} karakter.'
+    })
+];
+
+var descriptionValidator = [
+    validate({
+        validator: 'isLength',
+        arguments: [2, 200],
+        message: 'Du skal indtaste en beskrivelse, mellem {ARGS[0]} og {ARGS[1]} karakter.'
+    })
+];
 
 /**
  * Schema
@@ -12,12 +34,14 @@ const ItemSchema = new Schema({
     title: {
         type: String,
         default: '',
-        trim: true
+        trim: true,
+        validate: titleValidator
     },
     description: {
         type: String,
         default: '',
-        trim: true
+        trim: true,
+        validate: descriptionValidator
     },
     owner: {
         type: Schema.ObjectId,

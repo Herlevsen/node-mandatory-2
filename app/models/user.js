@@ -3,25 +3,58 @@
  */
 const mongoose = require('mongoose');
 const bcrypt   = require('bcrypt');
+const validate = require('mongoose-validator');
 
 const Schema   = mongoose.Schema;
 
 /**
+ * Validators
+ */
+
+var emailValidator = [
+    validate({
+        validator: 'isEmail',
+        passIfEmpty: false,
+        message: 'Ikke gyldig email.'
+    })
+];
+
+var passwordValidator = [
+    validate({
+        validator: 'isLength',
+        arguments: 6,
+        message: 'Dit password skal bestå af mere end {ARGS[0]} karakter.'
+    })
+];
+
+var nameValidator = [
+    validate({
+        validator: 'isLength',
+        arguments: 2,
+        message: 'Du skal indtaste et navn på mere end {ARGS[0]} karakter.'
+    })
+];
+
+/**
  * Schema
  */
+
 const UserSchema = new Schema({
     email: {
         type : String,
         trim : true,
-        unique: true
+        unique: true,
+        validate: emailValidator
     },
     password: {
         type : String,
-        trim : true
+        trim : true,
+        validate: passwordValidator
     },
     name: {
         type: String,
-        trim: true
+        trim: true,
+        validate: nameValidator
     },
     items: [{
         type : Schema.ObjectId,

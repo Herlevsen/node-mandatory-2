@@ -28,9 +28,27 @@ module.exports = function(app, router, passport) {
 	// Error handling
 	app.use(function(err, req, res, next) {
 
-		res.json({
-			error: err.message
-		});
+		if (err.name == 'ValidationError') {
+			var errorsArray = [];
+
+			for (field in err.errors) {
+				errorsArray.push({
+					field: field,
+					text: err.errors[field].message
+				});
+			}
+
+			res.json({
+				error: "ValidationError",
+				validationErrors: errorsArray
+			});
+
+		} else {
+			// A general error (db, crypto, etc…)
+			res.json({
+				error: err.message
+			});
+		}
 	});
 
 }

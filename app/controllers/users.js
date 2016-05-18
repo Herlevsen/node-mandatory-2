@@ -46,13 +46,12 @@ exports.create = function(req, res, next) {
 
     user.save(function (err) {
         if (err) {
-            return next(err)
+            return next(err);
         }
         // saved!
-    });
-
-    res.json({
-        test: "Test!"
+        res.json({
+            data: user
+        })
     });
 }
 

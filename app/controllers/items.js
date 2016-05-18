@@ -46,7 +46,7 @@ exports.index = function(req, res, next) {
     });
 }
 
-exports.create = function(req, res) {
+exports.create = function(req, res, next) {
 
     var address = {
         address: req.body.address.address,
@@ -69,16 +69,13 @@ exports.create = function(req, res) {
 
     item.save(function (err) {
         if (err) {
-            return handleError(err);
+            return next(err);
         }
         // saved!
-    });
-
-
-
-    res.json({
-    	status: "created",
-        data: item
+        res.json({
+            status: "created",
+            data: item
+        });
     });
 }
 
