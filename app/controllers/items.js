@@ -4,24 +4,44 @@
 const mongoose = require('mongoose');
 
 const Item = mongoose.model('Item');
+const User = mongoose.model('User');
 
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
 	const page  = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
     const skip  = (page - 1) * limit;
+
+    const userIds = [];
 
 	Item.find()
     .select('-__v')
     .limit(limit)
     .skip(skip)
     .sort({name: 'asc'})
-    .exec(function(err, users) {
+    .exec(function(err, items) {
         if(err) {
-
+            return next(err);
         }
 
-        res.json({
-            data: users
+        const l = items.length;
+        for(var i = 0; i < l; i++) {
+            userIds.push(items[i].owner);
+        }
+
+        User.find()
+        .where('_id')
+        .in(userIds)
+        .exec(function(err, users) {
+            if(err) {
+                return next(err);
+            }
+
+            res.json({
+                data: items,
+                relationships: {
+                    users: users
+                }
+            });
         });
     });
 }
@@ -39,7 +59,7 @@ exports.create = function(req, res) {
     var item = new Item({
         title: req.body.title,
         description: req.body.description,
-        owner: req.user,
+        owner: req.user._id,
         address: address
 
     });
