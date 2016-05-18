@@ -69,7 +69,7 @@ exports.find = function(req, res) {
 }
 
 exports.authenticate = function(req, res) {
-    User.findOne({ username: req.body.username }, function(err, user) {
+    User.findOne({ email: req.body.email }, function(err, user) {
         if (err) throw err;
 
         if (!user) {

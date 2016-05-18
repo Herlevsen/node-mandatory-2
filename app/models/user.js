@@ -54,6 +54,10 @@ const UserSchema = new Schema({
         longitude: {
             type: Number
         }
+    },
+    admin: {
+        type: Boolean,
+        default: false
     }
 });
 
@@ -85,5 +89,9 @@ UserSchema.methods.comparePassword = function (passw, cb) {
         cb(null, isMatch);
     });
 };
+
+UserSchema.methods.isAdmin = function() {
+    return this.admin == true
+}
 
 mongoose.model('User', UserSchema);

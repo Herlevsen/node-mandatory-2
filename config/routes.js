@@ -6,12 +6,12 @@ module.exports = function(app, router, passport) {
 
 	const auth = passport.authenticate('jwt', {session: false});
 
+	// Categories
+	router.get('/categories', categories.index);
+	router.post('/categories', auth, categories.create);
 
 	// Authentication
 	router.post('/authenticate', users.authenticate);
-	// Categories
-	router.get('/categories', categories.index);
-
 
 	// Items
 	router.get('/items', items.index);
