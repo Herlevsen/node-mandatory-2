@@ -55,7 +55,7 @@ exports.create = function(req, res, next) {
 };
 
 exports.find = function(req, res) {
-    User.findOne(req.params.id).select('-__v').exec(function(err, user) {
+    User.findById(req.params.id).select('-__v').exec(function(err, user) {
         if(err) {
 
         }

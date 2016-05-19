@@ -146,7 +146,7 @@ exports.create = function(req, res, next) {
 };
 
 exports.find = function(req, res, next) {
-	Item.findOne(req.params.id).select('-__v').exec(function(err, item) {
+	Item.findById(req.params.id).select('-__v').exec(function(err, item) {
         if(err) {
             return next(err);
         }
