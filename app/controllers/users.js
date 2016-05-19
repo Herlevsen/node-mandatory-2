@@ -42,11 +42,14 @@ exports.create = function(req, res, next) {
         name: req.body.name,
         address: address
     });
-
     user.save(function (err) {
         if (err) {
             return next(err);
         }
+
+        var key = "password";
+        user[key] = null;
+
         // saved!
         res.json({
             data: user
@@ -67,7 +70,7 @@ exports.find = function(req, res) {
 };
 
 exports.authenticate = function(req, res) {
-    User.findOne({ email: req.body.email }, function(err, user) {
+    User.findOne({ email: req.body.email } ).select("+password").exec(function(err, user) {
         if (err) throw err;
 
         if (!user) {

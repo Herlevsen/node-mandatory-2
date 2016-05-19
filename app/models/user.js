@@ -51,7 +51,8 @@ const UserSchema = new Schema({
     password: {
         type : String,
         trim : true,
-        validate: passwordValidator
+        validate: passwordValidator,
+        select: false
     },
     name: {
         type: String,
