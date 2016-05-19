@@ -47,8 +47,7 @@ exports.create = function(req, res, next) {
             return next(err);
         }
 
-        var key = "password";
-        user[key] = null;
+        user.password = undefined;
 
         // saved!
         res.json({
@@ -83,6 +82,7 @@ exports.authenticate = function(req, res) {
             user.comparePassword(req.body.password, function(err, isMatch) {
                 if (isMatch && !err) {
                     // if user is found and password is right create a token
+                    user.password = undefined;
                     var token = jwt.encode(user, "secret");
                     // return the information including token as JSON
                     res.json({
