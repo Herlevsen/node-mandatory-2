@@ -58,10 +58,6 @@ const UserSchema = new Schema({
         trim: true,
         validate: nameValidator
     },
-    items: [{
-        type : Schema.ObjectId,
-        ref : 'Item'
-    }],
     image: {
         cdnUri: String,
         files: []
