@@ -39,18 +39,26 @@ module.exports = function(app, router, passport) {
 				});
 			}
 
+			// Bad request
+			res.status(401);
 			res.json({
 				success: false,
 				error: "ValidationError",
 				validationErrors: errorsArray
 			});
 
-		} else {
-			// A general error (db, crypto, etc…)
-			res.json({
-				error: err.message
-			});
+			return;
 		}
+		
+		// Heroku will let us write to the log, just by doing console.log
+		console.log(err);
+		
+		// Unknown error
+		res.status(500);
+		res.json({
+			success: false,
+			error: "Unknown error"
+		});
 	});
 
 }

@@ -152,6 +152,7 @@ exports.find = function(req, res, next) {
         }
 
         if(item === null) {
+			res.status(404);
             return res.json({
                 success: false,
                 error: "NotFound"
@@ -171,12 +172,17 @@ exports.delete = function(req, res, next) {
         }
 
         if(item === null) {
+			// Not found
+			res.status(404);
             return res.json({
-                success: false
+                success: false,
+				error: "ItemNotFound"
             });
         }
 
         item.delete(function () {
+			// Successfull - not returning any content
+			res.status(204);
             res.json({
                 success: true
             });

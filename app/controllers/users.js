@@ -6,6 +6,9 @@ const jwt      = require('jwt-simple');
 
 const User = mongoose.model('User');
 
+/**
+ * Find all users - Not in use ATM
+ */
 exports.index = function(req, res) {
     const page  = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
@@ -27,6 +30,9 @@ exports.index = function(req, res) {
     });
 };
 
+/**
+ * Create a user
+ */
 exports.create = function(req, res, next) {
 
     const address = {
@@ -44,6 +50,15 @@ exports.create = function(req, res, next) {
     });
     user.save(function (err) {
         if (err) {
+            // Duplicate key - bad request
+            if(err.code == 11000) {
+                res.status(400);
+                return res.json({
+                    success: false,
+                    error: "EmailAlreadyInUse"
+                });
+            }
+
             return next(err);
         }
 
@@ -51,51 +66,80 @@ exports.create = function(req, res, next) {
 
         // saved!
         res.json({
-            data: user
-        })
-    });
-};
-
-exports.find = function(req, res) {
-    User.findById(req.params.id).select('-__v').exec(function(err, user) {
-        if(err) {
-
-        }
-
-        res.json({
+            success: true,
             data: user
         });
     });
 };
 
-exports.authenticate = function(req, res) {
-    User.findOne({ email: req.body.email } ).select("+password").exec(function(err, user) {
-        if (err) throw err;
 
-        if (!user) {
-            res.send({
+/**
+ * Find a user by id
+ */
+exports.find = function(req, res, next) {
+
+    User.findById(req.params.id).select('-__v').exec(function(err, user) {
+        if(err) {
+            return next(err);
+        }
+
+        if(!user) {
+            // Not found
+            res.status(404);
+            return res.json({
                 success: false,
-                msg: 'Authentication failed. User not found.'
-            });
-        } else {
-            // check if password matches
-            user.comparePassword(req.body.password, function(err, isMatch) {
-                if (isMatch && !err) {
-                    // if user is found and password is right create a token
-                    user.password = undefined;
-                    var token = jwt.encode(user, "secret");
-                    // return the information including token as JSON
-                    res.json({
-                        success: true,
-                        token: 'JWT ' + token
-                    });
-                } else {
-                    res.send({
-                        success: false,
-                        msg: 'Authentication failed. Wrong password.'
-                    });
-                }
+                error: "UserNotFound"
             });
         }
+
+        return res.json({
+            data: user
+        });
     });
 };
+
+/**
+ * Request a JWT authentication token
+ */
+exports.authenticate = function(req, res) {
+    User.findOne({ email: req.body.email } ).select("+password").exec(function(err, user) {
+        if (err) {
+            return next(err);
+        }
+
+        // Email not found - for security reason response is same as when password is not right
+        if (!user) {
+            return userNotFound(res);
+        }
+
+        // Check if password matches
+        user.comparePassword(req.body.password, function(err, isMatch) {
+            if (isMatch && !err) {
+                // if user is found and password is right create a token
+                user.password = undefined;
+                var token = jwt.encode(user, "secret");
+
+                // return the information including token as JSON
+                return res.json({
+                    success: true,
+                    data: {
+                        token: 'JWT ' + token,
+                        user: user
+                    }
+                });
+            }
+
+            return userNotFound(res);
+        });
+    });
+};
+
+// Convenience function for user not found
+function userNotFound(res) {
+    // Unauthorized
+    res.status(401);
+    res.send({
+        success: false,
+        error: 'UserNotFound'
+    });
+}
