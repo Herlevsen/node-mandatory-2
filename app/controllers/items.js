@@ -18,7 +18,8 @@ exports.index = function (req, res, next) {
 	const long   = !isNaN(req.query.long) ? parseFloat(req.query.long) : null;
 	const radius = !isNaN(req.query.radius) ? (parseInt(req.query.radius) / 6371) : null;
 
-	console.log(radius);
+	// CategoryId
+	const categoryId = req.query.categoryId || null;
 
 	const userIds = [];
 
@@ -28,6 +29,13 @@ exports.index = function (req, res, next) {
 		spherical: true,
 		limit: 60
 	};
+
+	// If a category is chosen, add it to the query
+	if(categoryId != null) {
+		queryOptions.query = {
+			category: mongoose.Types.ObjectId(categoryId)
+		}
+	}
 
 	Item.geoNear([long, lat], queryOptions, function (err, items) {
 		if (err) {
