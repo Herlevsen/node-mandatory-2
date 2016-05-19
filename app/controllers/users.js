@@ -25,16 +25,15 @@ exports.index = function(req, res) {
             data: users
         });
     });
-}
+};
 
 exports.create = function(req, res, next) {
 
-    var address = {
+    const address = {
         address: req.body.address.address,
         cityName: req.body.address.cityName,
         postalCode: parseInt(req.body.address.postalCode),
-        latitude: parseFloat(req.body.address.latitude),
-        longitude: parseFloat(req.body.address.longitude)
+        coordinates: req.body.address.coordinates
     };
 
     var user = new User({
@@ -53,7 +52,7 @@ exports.create = function(req, res, next) {
             data: user
         })
     });
-}
+};
 
 exports.find = function(req, res) {
     User.findOne(req.params.id).select('-__v').exec(function(err, user) {
@@ -65,7 +64,7 @@ exports.find = function(req, res) {
             data: user
         });
     });
-}
+};
 
 exports.authenticate = function(req, res) {
     User.findOne({ email: req.body.email }, function(err, user) {
@@ -96,4 +95,4 @@ exports.authenticate = function(req, res) {
             });
         }
     });
-}
+};

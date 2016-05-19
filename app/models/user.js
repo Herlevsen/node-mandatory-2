@@ -2,10 +2,12 @@
  * Dependencies
  */
 const mongoose = require('mongoose');
+const address  = require('./address');
 const bcrypt   = require('bcrypt');
 const validate = require('mongoose-validator');
+const addressSchema  = require('./address');
 
-const Schema   = mongoose.Schema;
+const Schema        = mongoose.Schema;
 
 /**
  * Validators
@@ -68,26 +70,7 @@ const UserSchema = new Schema({
         type : Date,
         default : Date.now
     },
-    address: {
-        address: {
-            type: String,
-            trim: true
-        },
-        cityName: {
-            type: String,
-            trim: true
-        },
-        postalCode: {
-            type: Number,
-            trim: true
-        },
-        latitude: {
-            type: Number,
-        },
-        longitude: {
-            type: Number
-        }
-    },
+    address: addressSchema,
     admin: {
         type: Boolean,
         default: false

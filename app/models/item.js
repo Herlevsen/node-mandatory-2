@@ -4,6 +4,7 @@
 const mongoose = require('mongoose');
 const validate = require('mongoose-validator');
 const mongoose_delete = require('mongoose-delete');
+const addressSchema  = require('./address');
 
 const Schema = mongoose.Schema;
 
@@ -58,26 +59,7 @@ const ItemSchema = new Schema({
         type: Date,
         default: Date.now
     },
-    address: {
-        address: {
-            type: String,
-            trim: true
-        },
-        cityName: {
-            type: String,
-            trim: true
-        },
-        postalCode: {
-            type: Number,
-            trim: true
-        },
-        latitude: {
-            type: Number,
-        },
-        longitude: {
-            type: Number
-        }
-    }
+    address: addressSchema
 });
 
 /**
