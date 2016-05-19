@@ -3,7 +3,7 @@
  */
 const mongoose = require('mongoose');
 const validate = require('mongoose-validator');
-
+const mongoose_delete = require('mongoose-delete');
 
 const Schema = mongoose.Schema;
 
@@ -79,5 +79,10 @@ const ItemSchema = new Schema({
         }
     }
 });
+
+/**
+ *  Add soft delete
+ */
+ItemSchema.plugin(mongoose_delete, {deletedAt : true, overrideMethods: 'all'});
 
 mongoose.model('Item', ItemSchema);

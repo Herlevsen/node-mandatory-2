@@ -16,6 +16,7 @@ module.exports = function(app, router, passport) {
 	// Items
 	router.get('/items', items.index);
 	router.get('/items/:id', items.find);
+	router.delete('/items/:id', auth, items.delete);
 	router.post('/items', auth, items.create);
 
 	// Users
@@ -39,6 +40,7 @@ module.exports = function(app, router, passport) {
 			}
 
 			res.json({
+				success: false,
 				error: "ValidationError",
 				validationErrors: errorsArray
 			});
