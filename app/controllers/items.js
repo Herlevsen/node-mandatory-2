@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 const Item = mongoose.model('Item');
 const User = mongoose.model('User');
+const Category = mongoose.model('Category');
 
 exports.index = function (req, res, next) {
 	// Pagination
@@ -96,34 +97,52 @@ exports.index = function (req, res, next) {
 
 exports.create = function(req, res, next) {
 
-	const address = {
-		address: req.body.address.address,
-		cityName: req.body.address.cityName,
-		postalCode: parseInt(req.body.address.postalCode),
-		coordinates: req.body.address.coordinates
-	};
+	// find requested category
+	Category.findById(req.body.categoryId, function (err, category) {
 
-	var item = new Item({
-		title: req.body.title,
-		description: req.body.description,
-		owner: req.user._id,
-		address: address
+		if (err) {
+			return next(err);
+		}
+
+		if(!category) {
+			return res.json({
+				success: false,
+				error: "NotFound"
+			});
+		}
+
+		// found a category
+		const address = {
+			address: req.body.address.address,
+			cityName: req.body.address.cityName,
+			postalCode: parseInt(req.body.address.postalCode),
+			coordinates: req.body.address.coordinates
+		};
+
+		var item = new Item({
+			title: req.body.title,
+			description: req.body.description,
+			owner: req.user._id,
+			address: address,
+			category: category._id
+
+		});
+
+		// For the moment we hardcode an image
+		item.images.push("avatar.png");
+
+		item.save(function (err) {
+			if (err) {
+				return next(err);
+			}
+			// saved!
+			res.json({
+				status: "created",
+				data: item
+			});
+		});
 
 	});
-
-	// For the moment we hardcode an image
-	item.images.push("avatar.png");
-
-    item.save(function (err) {
-        if (err) {
-            return next(err);
-        }
-        // saved!
-        res.json({
-            status: "created",
-            data: item
-        });
-    });
 };
 
 exports.find = function(req, res, next) {
