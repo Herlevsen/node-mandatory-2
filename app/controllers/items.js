@@ -55,6 +55,7 @@ exports.index = function (req, res, next) {
 					}
 
 					res.json({
+						success: true,
 						data: items,
 						relationships: {
 							users: users
@@ -79,6 +80,7 @@ exports.index = function (req, res, next) {
 		sort( { createdAt: "desc" } ).
 		exec(function(err, items) {
 			res.json({
+				success: true,
 				data: items
 			});
 	});
@@ -126,7 +128,7 @@ exports.create = function(req, res, next) {
 			}
 			// saved!
 			res.json({
-				status: "created",
+				success: true,
 				data: item
 			});
 		});

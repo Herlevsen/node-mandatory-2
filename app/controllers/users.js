@@ -9,7 +9,7 @@ const User = mongoose.model('User');
 /**
  * Find all users - Not in use ATM
  */
-exports.index = function(req, res) {
+exports.index = function(req, res, next) {
     const page  = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 100;
     const skip  = (page - 1) * limit;
@@ -21,10 +21,11 @@ exports.index = function(req, res) {
     .sort({name: 'asc'})
     .exec(function(err, users) {
         if(err) {
-
+            return next(err);
         }
 
         res.json({
+            success: true,
             data: users
         });
     });
@@ -93,6 +94,7 @@ exports.find = function(req, res, next) {
         }
 
         return res.json({
+            success: true,
             data: user
         });
     });
