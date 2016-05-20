@@ -8,100 +8,81 @@ const User = mongoose.model('User');
 const Category = mongoose.model('Category');
 
 exports.index = function (req, res, next) {
-	// Pagination
-	const page = parseInt(req.query.page) || 1;
-	const limit = parseInt(req.query.limit) || 100;
-	const skip = (page - 1) * limit;
+
+	// CategoryId
+	const categoryId = req.query.categoryId || null;
 
 	// Latitude / Longitude / Radius
 	const lat    = !isNaN(req.query.lat) ? parseFloat(req.query.lat) : null;
 	const long   = !isNaN(req.query.long) ? parseFloat(req.query.long) : null;
 	const radius = !isNaN(req.query.radius) ? (parseInt(req.query.radius) / 6371) : null;
+	const isLocationSearch = lat !== null && long !== null && radius != null;
 
-	// CategoryId
-	const categoryId = req.query.categoryId || null;
+	if( isLocationSearch) {
 
-	const userIds = [];
+		const userIds = [];
 
-	var queryOptions = {
-		maxDistance: radius,
-		distanceMultiplier: 6371, // tell mongo how many radians go into one kilometer.
-		spherical: true,
-		limit: 60
-	};
+		var locationQuery = {
+			maxDistance: radius,
+			distanceMultiplier: 6371, // tell mongo how many radians go into one kilometer.
+			spherical: true,
+			limit: 60
+		};
 
-	// If a category is chosen, add it to the query
-	if(categoryId != null) {
-		queryOptions.query = {
-			category: mongoose.Types.ObjectId(categoryId)
+		// If a category is chosen, add it to the query
+		if (categoryId != null) {
+			locationQuery.query = {
+				category: mongoose.Types.ObjectId(categoryId)
+			}
 		}
+
+		Item.geoNear([long, lat], locationQuery, function (err, items) {
+			if (err) {
+				return next(err);
+			}
+
+			const l = items.length;
+			for (var i = 0; i < l; i++) {
+				userIds.push(items[i].owner);
+			}
+
+			User.find()
+				.where('_id')
+				.in(userIds)
+				.exec(function (err, users) {
+					if (err) {
+						return next(err);
+					}
+
+					res.json({
+						data: items,
+						relationships: {
+							users: users
+						}
+					});
+				});
+		});
+
+		return;
 	}
 
-	Item.geoNear([long, lat], queryOptions, function (err, items) {
-		if (err) {
-			return next(err);
-		}
+	// Pagination
+	const page = parseInt(req.query.page) || 1;
+	const limit = parseInt(req.query.limit) || 100;
+	const skip = (page - 1) * limit;
 
-		const l = items.length;
-		for (var i = 0; i < l; i++) {
-			userIds.push(items[i].owner);
-		}
+	const orderQuery = categoryId ? { category: categoryId } : {};
 
-		User.find()
-			.where('_id')
-			.in(userIds)
-			.exec(function (err, users) {
-				if (err) {
-					return next(err);
-				}
-
-				res.json({
-					data: items,
-					relationships: {
-						users: users
-					}
-				});
+	Item.find(orderQuery).
+		limit(limit).
+		skip(skip).
+		sort( { createdAt: "desc" } ).
+		exec(function(err, items) {
+			res.json({
+				data: items
 			});
 	});
-	// .find({
-	// 	address: {
-	// 		coordinates: {
-	// 			$near: [long, lat],
-	// 			$maxDistance: maxDistance
-	// 		}
-	// 	}
-	// })
-	// .select('-__v')
-	// .limit(limit)
-	// .skip(skip)
-	// .sort({name: 'asc'})
-	// .exec(function (err, items) {
-	// 	if (err) {
-	// 		return next(err);
-	// 	}
-	//
-	// 	const l = items.length;
-	// 	for (var i = 0; i < l; i++) {
-	// 		userIds.push(items[i].owner);
-	// 	}
-	//
-	// 	User.find()
-	// 		.where('_id')
-	// 		.in(userIds)
-	// 		.exec(function (err, users) {
-	// 			if (err) {
-	// 				return next(err);
-	// 			}
-	//
-	// 			res.json({
-	// 				data: items,
-	// 				relationships: {
-	// 					users: users
-	// 				}
-	// 			});
-	// 		});
-	// });
-}
+};
 
 exports.create = function(req, res, next) {
 
