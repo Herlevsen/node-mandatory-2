@@ -126,7 +126,10 @@ exports.create = function(req, res, next) {
 			// saved!
 			res.json({
 				success: true,
-				data: item
+				data: item,
+				relationships: {
+					category: category
+				}
 			});
 		});
 
