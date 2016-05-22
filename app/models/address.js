@@ -1,3 +1,6 @@
+var GeoJSON = require('mongoose-geojson-schema');
+var mongoose = require('mongoose');
+
 module.exports = {
 	address: {
 		type: String,
@@ -11,8 +14,8 @@ module.exports = {
 		type: Number,
 		trim: true
 	},
-	coordinates: {
-		type: [Number],
-		index: '2dsphere'      // create the geospatial index
+	location: {
+		type: mongoose.Schema.Types.Point,
+		index: '2dsphere'
 	}
 };

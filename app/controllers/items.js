@@ -2,89 +2,83 @@
  * Dependencies
  */
 const mongoose = require('mongoose');
-
+const wrap = require('co-express');
 const Item = mongoose.model('Item');
 const User = mongoose.model('User');
 const Category = mongoose.model('Category');
 
-exports.index = function (req, res, next) {
+exports.index = wrap(function* (req, res, next) {
 
 	// CategoryId
 	const categoryId = req.query.categoryId || null;
-
-	// Latitude / Longitude / Radius
-	const lat    = !isNaN(req.query.lat) ? parseFloat(req.query.lat) : null;
-	const long   = !isNaN(req.query.long) ? parseFloat(req.query.long) : null;
-	const radius = !isNaN(req.query.radius) ? (parseInt(req.query.radius) / 6371) : null;
-	const isLocationSearch = lat !== null && long !== null && radius != null;
-
-	if( isLocationSearch) {
-
-		const userIds = [];
-
-		var locationQuery = {
-			maxDistance: radius,
-			distanceMultiplier: 6371, // tell mongo how many radians go into one kilometer.
-			spherical: true,
-			limit: 60
-		};
-
-		// If a category is chosen, add it to the query
-		if (categoryId != null) {
-			locationQuery.query = {
-				category: mongoose.Types.ObjectId(categoryId)
-			}
-		}
-
-		Item.geoNear([long, lat], locationQuery, function (err, items) {
-			if (err) {
-				return next(err);
-			}
-
-			const l = items.length;
-			for (var i = 0; i < l; i++) {
-				userIds.push(items[i].owner);
-			}
-
-			User.find()
-				.where('_id')
-				.in(userIds)
-				.exec(function (err, users) {
-					if (err) {
-						return next(err);
-					}
-
-					res.json({
-						success: true,
-						data: items,
-						relationships: {
-							users: users
-						}
-					});
-				});
-		});
-
-		return;
-	}
 
 	// Pagination
 	const page = parseInt(req.query.page) || 1;
 	const limit = parseInt(req.query.limit) || 100;
 	const skip = (page - 1) * limit;
-
 	const orderQuery = categoryId ? { category: categoryId } : {};
 
-	Item.find(orderQuery).
-		limit(limit).
-		skip(skip).
-		sort( { createdAt: "desc" } ).
-		exec(function(err, items) {
-			res.json({
-				success: true,
-				data: items
-			});
+	// Latitude / Longitude / Radius
+	const lat    = !isNaN(req.query.lat) ? parseFloat(req.query.lat) : null;
+	const long   = !isNaN(req.query.long) ? parseFloat(req.query.long) : null;
+	const radius = !isNaN(req.query.radius) ? (parseInt(req.query.radius) / 6371) : 100 / 6371;
+	const isLocationSearch = lat !== null && long !== null;
+
+	// Prepare lists
+	var userIds = {};
+	var categoryIds = {};
+
+	// If a category is chosen, add it to the query
+	var queryOptions = {};
+	if (categoryId != null) {
+		queryOptions.category = mongoose.Types.ObjectId(categoryId)
+	}
+
+	// Create a query
+	const query = Item
+		.find(queryOptions)
+		.sort( { createdAt: "desc" } );
+
+	if(isLocationSearch) {
+		query.where('address.location').near({
+			center: [long, lat],
+			spherical: true,
+			maxDistance: radius
+		});
+	} else {
+		query.limit(limit).skip(skip);
+	}
+
+	// Get items
+	const items = yield query.exec();
+
+	// Get user and category ids
+	const l = items.length;
+	for (var i = 0; i < l; i++) {
+		userIds[items[i].owner] = true;
+		categoryIds[items[i].category] = true
+	}
+
+	// Get users
+	const users = yield User.where('_id')
+		.in(Object.keys(userIds))
+		.exec();
+
+	// Get categories
+	const categories = yield Category.where('_id')
+		.in(Object.keys(categoryIds))
+		.exec();
+
+	res.json({
+		success: true,
+		data: items,
+		relationships: {
+			users: users,
+			categories: categories
+		}
 	});
-};
+
+});
 
 exports.create = function(req, res, next) {
 
@@ -107,7 +101,10 @@ exports.create = function(req, res, next) {
 			address: req.body.address.address,
 			cityName: req.body.address.cityName,
 			postalCode: parseInt(req.body.address.postalCode),
-			coordinates: req.body.address.coordinates
+			location: {
+				type: 'Point',
+				coordinates: req.body.address.coordinates
+			}
 		};
 
 		var item = new Item({

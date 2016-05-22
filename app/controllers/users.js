@@ -40,7 +40,10 @@ exports.create = function(req, res, next) {
         address: req.body.address.address,
         cityName: req.body.address.cityName,
         postalCode: parseInt(req.body.address.postalCode),
-        coordinates: req.body.address.coordinates
+        location: {
+            type: 'Point',
+            coordinates: req.body.address.coordinates
+        }
     };
 
     var user = new User({
