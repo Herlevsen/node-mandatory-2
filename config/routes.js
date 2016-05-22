@@ -38,9 +38,15 @@ module.exports = function(app, router, passport) {
 					text: err.errors[field].message
 				});
 			}
+			
+			if(process.env.NODE_ENV == "dev") {
+				console.log(req.url);
+				console.log(err.name);
+				console.log(errorsArray);
+			}
 
 			// Bad request
-			res.status(401);
+			res.status(400);
 			res.json({
 				success: false,
 				error: "ValidationError",

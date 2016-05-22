@@ -103,7 +103,7 @@ exports.create = function(req, res, next) {
 			postalCode: parseInt(req.body.address.postalCode),
 			location: {
 				type: 'Point',
-				coordinates: req.body.address.coordinates
+				coordinates: req.body.address.location.coordinates
 			}
 		};
 
