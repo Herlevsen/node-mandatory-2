@@ -139,11 +139,18 @@ exports.create = function(req, res, next) {
 exports.update = function(req, res, next) {
 
 	const user = req.user;
+	const data = req.body;
+
+	// Protect from mass assignment
+	delete data['owner'];
+	delete data['__v'];
+
+	console.log(data);
 
 	Item.update({
 		_id: req.params.id,
 		owner: user._id
-	}, { $set: req.body}, function(err, data) {
+	}, { $set: data}, function(err, data) {
 
 		if (err) {
 			return next(err);
