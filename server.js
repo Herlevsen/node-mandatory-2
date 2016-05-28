@@ -31,7 +31,7 @@ connect()
 .on('disconnected', connect)
 .once('open', function() {
     // And now we wait...
-    app.listen(3000);
+    app.listen(port);
 });
 
 function connect () {

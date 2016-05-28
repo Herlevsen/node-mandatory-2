@@ -56,7 +56,7 @@ exports.index = wrap(function* (req, res, next) {
 	const l = items.length;
 	for (var i = 0; i < l; i++) {
 		userIds[items[i].owner] = true;
-		categoryIds[items[i].category] = true
+		categoryIds[items[i].category] = true;
 	}
 
 	// Get users
@@ -134,6 +134,34 @@ exports.create = function(req, res, next) {
 		});
 
 	});
+};
+
+exports.update = function(req, res, next) {
+
+	const user = req.user;
+
+	Item.update({
+		_id: req.params.id,
+		owner: user._id
+	}, { $set: req.body}, function(err, data) {
+
+		if (err) {
+			return next(err);
+		}
+
+		Item.findById(req.params.id, function(err, item) {
+			if (err) {
+				return next(err);
+			}
+
+			res.json({
+				status: 'success',
+				data: item
+			});
+		});
+
+	});
+
 };
 
 exports.find = function(req, res, next) {

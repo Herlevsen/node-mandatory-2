@@ -18,6 +18,7 @@ module.exports = function(app, router, passport) {
 	router.get('/items/:id', items.find);
 	router.delete('/items/:id', auth, items.delete);
 	router.post('/items', auth, items.create);
+	router.put('/items/:id', auth, items.update);
 
 	// Users
 	router.post('/users', users.create);

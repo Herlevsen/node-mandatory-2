@@ -3,6 +3,7 @@
  */
 const mongoose = require('mongoose');
 const jwt      = require('jwt-simple');
+const config   = require('../../config');
 
 const User = mongoose.model('User');
 
@@ -122,7 +123,7 @@ exports.authenticate = function(req, res) {
             if (isMatch && !err) {
                 // if user is found and password is right create a token
                 user.password = undefined;
-                var token = jwt.encode(user, "secret");
+                var token = jwt.encode(user, config.passportSecret);
 
                 // return the information including token as JSON
                 return res.json({

@@ -3,6 +3,7 @@
  */
 const mongoose    = require('mongoose');
 const passportJwt = require('passport-jwt');
+const config      = require('./index.js');
 
 const JwtStrategy = passportJwt.Strategy;
 const ExtractJwt  = passportJwt.ExtractJwt;
@@ -13,7 +14,7 @@ module.exports = function(passport) {
 
 	var opts = {}
 	opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
-	opts.secretOrKey = 'secret';
+	opts.secretOrKey = config.passportSecret;
 
 	passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
 
