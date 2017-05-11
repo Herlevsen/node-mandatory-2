@@ -22,6 +22,7 @@ module.exports = function(app, router, passport) {
 
 	// Users
 	router.post('/users', users.create);
+	router.get('/users', users.index);
 	router.get('/users/:id', users.find);
 
 	// Add routes to express instance
